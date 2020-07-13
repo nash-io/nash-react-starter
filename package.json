@@ -64,6 +64,7 @@
   },
   "scripts": {
     "start": "PROXY_BACKEND=https://app.nash.io node scripts/start.js",
+    "start:sandbox": "PROXY_BACKEND=https://app.sandbox.nash.io node scripts/start.js",
     "build": "node scripts/build.js",
     "test": "node scripts/test.js"
   },

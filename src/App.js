@@ -61,7 +61,9 @@ function App() {
     }
     run()
   }, [apiKey])
-  const suficientFunds = available != null && parseFloat(available.amount) > parseFloat(amount) * swapPrices.buyPrice
+  const usdcAmount =  swapPrices != null && parseFloat(amount) * swapPrices.BTC_USDC.buyPrice
+  const suficientFunds = available != null && swapPrices != null && parseFloat(available.available.amount) > usdcAmount
+
   return (
     <div className="App">
       <Logo style={{width: 200, height: 100}} />
@@ -94,7 +96,7 @@ function App() {
             <input class="nash-input" type="text" value={amount} onChange={e => setAmount(e.target.value)} /> BTC
           </div>
           <br />
-          <button disabled={!suficientFunds} class="nash-button fullwidth" onClick={async () => {
+          <button disabled={!suficientFunds || usdcAmount < 5} class="nash-button fullwidth" onClick={async () => {
               setPlaceOrderStatus("")
               if (!swapPrices) {
                 return
@@ -115,6 +117,7 @@ function App() {
             Swap {amount} BTC for {parseFloat(amount) * swapPrices.BTC_USDC.buyPrice} USDC
           </button>
           <p>{placeOrderStatus}</p>
+          {usdcAmount < 5 && <p>Cannot swap: Minimum amount must be larger than 5 usdc</p>}
           {!suficientFunds && <p>Cannot swap: Insifucient funds available in trading contract trading contract</p>}
         </>
       }
