@@ -13,7 +13,7 @@ Production setups will also require the same proxies, otherwise the browser will
 To get start start by installing all the dependencies
 
 ```
-	yarn install
+yarn install
 ```
 
 ## Available Scripts
