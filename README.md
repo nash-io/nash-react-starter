@@ -2,7 +2,7 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 # Nash React starter
 
-This is the Nash React starter kit. It shows how to set up and use the our [TypeScript SDK](https://github.com/nash-io/api-client-typescript) for building a browser application.
+This is the Nash React starter kit. It shows how to set up and use our [TypeScript SDK](https://github.com/nash-io/api-client-typescript) for building a browser application.
 
 Included are examples of how to correctly configure webpack to load our Wasm dependency and how to set up the proxies to interact with our services.
 
