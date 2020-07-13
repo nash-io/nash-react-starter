@@ -7,6 +7,7 @@ import {
   configurePoolSettings
 } from '@neon-exchange/nash-protocol'
 import './App.css';
+import { ReactComponent as Logo } from './logo.svg';
 
 // This step is really important
 configurePoolSettings(10)
@@ -17,17 +18,8 @@ const client = new Client({
   isLocal: true
 })
 
-function App() {
+function useSwapPrices() {
   const [swapPrices, setSwapPrices] = React.useState(null)
-  const [apiKey, setApiKey] = React.useState("")
-  const [amount, setAmount] = React.useState("0.0044")
-  const [ready, setReady] = React.useState(false)
-  const handleLogin = React.useCallback(() => {
-    client.login(JSON.parse(apiKey)).then(() => {
-      setReady(true)
-    })
-  }, [apiKey])
-
   React.useEffect(() => {
     const run = async () => {
       try {
@@ -42,35 +34,90 @@ function App() {
     setInterval(run, 15000)
   }, [])
 
+  return swapPrices
+}
+
+function App() {
+  const swapPrices = useSwapPrices()
+  const [apiKey, setApiKey] = React.useState("")
+  const [amount, setAmount] = React.useState("0.0044")
+  const [ready, setReady] = React.useState(false)
+  const [failed, setFailed] = React.useState(false)
+  const [available, setAvailable] = React.useState(null)
+  const [placeOrderStatus, setPlaceOrderStatus] = React.useState(null)
+
+  const handleLogin = React.useCallback(() => {
+    const run = async () => {
+      setFailed(false)
+      try {
+        await client.login(JSON.parse(apiKey))
+
+        const btcBalance = await client.getAccountBalance("usdc")
+        setAvailable(btcBalance)
+        setReady(true)
+      } catch(e){
+        setFailed(true)
+      }
+    }
+    run()
+  }, [apiKey])
+  const suficientFunds = available != null && parseFloat(available.amount) > parseFloat(amount) * swapPrices.buyPrice
   return (
     <div className="App">
-      <p>Paste in API key: </p>
-      <textarea cols="200" rows="6" onChange={event => setApiKey(event.target.value)} value={apiKey} /><br/>
-      <button onClick={handleLogin} disabled={apiKey.length === 0}>Login</button>
+      <Logo style={{width: 200, height: 100}} />
+      <h1>Swap service example</h1>
+      {swapPrices && <p>Current price: {swapPrices.BTC_USDC.buyPrice} USDC / BTC</p>}
+      <p>Step 1: Paste in API key: </p>
+      <div class="nash-textarea-wrapper">
+        <textarea class="nash-input"rows="6" onChange={event => setApiKey(event.target.value)} value={apiKey} />
+      </div>
+      <br/>
+      <button class="nash-button fullwidth" onClick={handleLogin} disabled={apiKey.length === 0}>Login</button>
+      {failed && <p>Failed to login!</p>}
       <br />
-        {ready && <>
-          <p>User logged in!</p>
+      <br />
+        {swapPrices != null && ready && <>
+          <p>Step 2: Choose amount to swap</p>
+          {available && <>
+            <hr />
+            <p>USDC balance:</p>
+            <p>Available in trading contract: {available.available.amount} UDSC</p>
+            <p>Wallet: {available.personal.amount} UDSC</p>
+            <p>In orders: {available.inOrders.amount} UDSC</p>
+            <p>Pending: {available.pending.amount} UDSC</p>
+            <hr />
+          </>}
           <p>
-            Amount to sell: <input type="text" value={amount} onChange={e => setAmount(e.target.value)} /> BTC
+            Amount to sell:
           </p>
-          <button onClick={() => {
+          <div class="nash-textarea-wrapper">
+            <input class="nash-input" type="text" value={amount} onChange={e => setAmount(e.target.value)} /> BTC
+          </div>
+          <br />
+          <button disabled={!suficientFunds} class="nash-button fullwidth" onClick={async () => {
+              setPlaceOrderStatus("")
               if (!swapPrices) {
                 return
               }
-              client.placeLimitOrder(
-                true,
-                {amount: amount, currency: "btc"},
-                "BUY",
-                "GOOD_TIL_CANCELLED",
-                {amount: swapPrices.BTC_USDC.buyPrice.toString(), currencyA: "usdc", currencyB: "btc"},
-                "btc_usdc"
-              )
+              try {
+                await client.placeLimitOrder(
+                  true,
+                  {amount: amount, currency: "btc"},
+                  "BUY",
+                  "GOOD_TIL_CANCELLED",
+                  {amount: swapPrices.BTC_USDC.buyPrice.toString(), currencyA: "usdc", currencyB: "btc"},
+                  "btc_usdc"
+                )
+              } catch(e){
+                setPlaceOrderStatus("Order placed")
+              }
           }}>
             Swap {amount} BTC for {parseFloat(amount) * swapPrices.BTC_USDC.buyPrice} USDC
           </button>
+          <p>{placeOrderStatus}</p>
+          {!suficientFunds && <p>Cannot swap: Insifucient funds available in trading contract trading contract</p>}
         </>
       }
-      {swapPrices && <p>Current price: {swapPrices.BTC_USDC.buyPrice} USDC / BTC</p>}
     </div>
   );
 }
