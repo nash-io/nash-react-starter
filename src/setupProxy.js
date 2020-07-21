@@ -1,4 +1,4 @@
-const proxy = require('http-proxy-middleware')
+const { createProxyMiddleware } = require('http-proxy-middleware');
 
 const PROXY_BACKEND = process.env.PROXY_BACKEND || 'http://localhost:4000'
 const PROXY_BTC_EXPLORER_DEV1 = 'https://btc-local-explorer.dev1.nash.io'
@@ -23,7 +23,7 @@ const onProxyRes = (proxyRes, req, res) => {
 
 module.exports = function(app) {
   app.use(
-    proxy('/swap-prices', {
+    createProxyMiddleware('/swap-prices', {
       target: "https://swap-prices.nash.io",
       changeOrigin: true,
       cookieDomainRewrite,
@@ -32,7 +32,7 @@ module.exports = function(app) {
   )
 
   app.use(
-    proxy('/api/socket', {
+    createProxyMiddleware('/api/socket', {
       target: PROXY_BACKEND,
       changeOrigin: true,
       ws: true,
@@ -43,7 +43,7 @@ module.exports = function(app) {
   )
 
   app.use(
-    proxy('/api', {
+    createProxyMiddleware('/api', {
       target: PROXY_BACKEND,
       changeOrigin: true,
       cookieDomainRewrite,
@@ -51,7 +51,7 @@ module.exports = function(app) {
     })
   )
   app.use(
-    proxy('/nash', {
+    createProxyMiddleware('/nash', {
       target: 'https://nash.io',
       pathRewrite: {
         '^/nash': '',
@@ -63,7 +63,7 @@ module.exports = function(app) {
   )
 
   app.use(
-    proxy('/btc-explorer-dev1', {
+    createProxyMiddleware('/btc-explorer-dev1', {
       target: PROXY_BTC_EXPLORER_DEV1,
       changeOrigin: true,
       cookieDomainRewrite,
@@ -72,7 +72,7 @@ module.exports = function(app) {
   )
 
   app.use(
-    proxy('/btc-explorer-dev2', {
+    createProxyMiddleware('/btc-explorer-dev2', {
       target: PROXY_BTC_EXPLORER_DEV2,
       changeOrigin: true,
       cookieDomainRewrite,
@@ -81,7 +81,7 @@ module.exports = function(app) {
   )
 
   app.use(
-    proxy('/btc-explorer-dev3', {
+    createProxyMiddleware('/btc-explorer-dev3', {
       target: PROXY_BTC_EXPLORER_DEV3,
       changeOrigin: true,
       cookieDomainRewrite,
@@ -90,7 +90,7 @@ module.exports = function(app) {
   )
 
   app.use(
-    proxy('/btc-explorer-dev4', {
+    createProxyMiddleware('/btc-explorer-dev4', {
       target: PROXY_BTC_EXPLORER_DEV4,
       changeOrigin: true,
       cookieDomainRewrite,
@@ -99,7 +99,7 @@ module.exports = function(app) {
   )
 
   app.use(
-    proxy('/btc-explorer-qa1', {
+    createProxyMiddleware('/btc-explorer-qa1', {
       target: PROXY_BTC_EXPLORER_QA1,
       changeOrigin: true,
       cookieDomainRewrite,
