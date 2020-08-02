@@ -61,7 +61,8 @@
     "webpack": "4.42.0",
     "webpack-dev-server": "3.10.3",
     "webpack-manifest-plugin": "2.2.0",
-    "workbox-webpack-plugin": "4.3.1"
+    "workbox-webpack-plugin": "4.3.1",
+    "worker-loader": "^3.0.0"
   },
   "scripts": {
     "start": "PROXY_BACKEND=https://app.nash.io node scripts/start.js",

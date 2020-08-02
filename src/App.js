@@ -1,22 +1,9 @@
 import React from 'react';
-import {
-  Client,
-  EnvironmentConfiguration
-} from '@neon-exchange/api-client-typescript'
-import {
-  configurePoolSettings
-} from '@neon-exchange/nash-protocol'
+
 import './App.css';
 import { ReactComponent as Logo } from './logo.svg';
-
+import client from "./Client"
 // This step is really important
-configurePoolSettings(10)
-
-const client = new Client({
-    ...EnvironmentConfiguration.production,
-  host: "localhost:3000",
-  isLocal: true
-})
 
 function useSwapPrices() {
   const [swapPrices, setSwapPrices] = React.useState(null)
@@ -49,6 +36,7 @@ function App() {
   const handleLogin = React.useCallback(() => {
     const run = async () => {
       setFailed(false)
+
       try {
         await client.login(JSON.parse(apiKey))
 
@@ -56,6 +44,7 @@ function App() {
         setAvailable(btcBalance)
         setReady(true)
       } catch(e){
+        console.log(e)
         setFailed(true)
       }
     }
@@ -70,11 +59,11 @@ function App() {
       <h1>Swap service example</h1>
       {swapPrices && <p>Current price: {swapPrices.BTC_USDC.buyPrice} USDC / BTC</p>}
       <p>Step 1: Paste in API key: </p>
-      <div class="nash-textarea-wrapper">
-        <textarea class="nash-input"rows="6" onChange={event => setApiKey(event.target.value)} value={apiKey} />
+      <div className="nash-textarea-wrapper">
+        <textarea className="nash-input"rows="6" onChange={event => setApiKey(event.target.value)} value={apiKey} />
       </div>
       <br/>
-      <button class="nash-button fullwidth" onClick={handleLogin} disabled={apiKey.length === 0}>Login</button>
+      <button className="nash-button fullwidth" onClick={handleLogin} disabled={apiKey.length === 0}>Login</button>
       {failed && <p>Failed to login!</p>}
       <br />
       <br />
@@ -92,11 +81,11 @@ function App() {
           <p>
             Amount to sell:
           </p>
-          <div class="nash-textarea-wrapper">
-            <input class="nash-input" type="text" value={amount} onChange={e => setAmount(e.target.value)} /> BTC
+          <div className="nash-textarea-wrapper">
+            <input className="nash-input" type="text" value={amount} onChange={e => setAmount(e.target.value)} /> BTC
           </div>
           <br />
-          <button disabled={!suficientFunds || usdcAmount < 5} class="nash-button fullwidth" onClick={async () => {
+          <button disabled={!suficientFunds || usdcAmount < 5} className="nash-button fullwidth" onClick={async () => {
               setPlaceOrderStatus("")
               if (!swapPrices) {
                 return
